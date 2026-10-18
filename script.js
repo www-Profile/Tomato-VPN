@@ -1,60 +1,30 @@
 /* ============================================================
-   TomatoVPN — визуальный макет (без серверов и запросов)
+   TomatoVPN — единая логика для ПК и телефона
    ============================================================ */
 
 (function () {
   'use strict';
 
-  // ---------- DOM ----------
-  const card        = document.getElementById('connectCard');
-  const powerBtn    = document.getElementById('powerBtn');
-  const statusText  = document.getElementById('statusText');
-  const ipValue     = document.getElementById('ipValue');
-  const timeValue   = document.getElementById('timeValue');
-  const downValue   = document.getElementById('downValue');
-  const upValue     = document.getElementById('upValue');
+  // ---------- Состояние (общее для обоих макетов) ----------
+  const state = {
+    isConnected: false,
+    isConnecting: false,
+    sessionSeconds: 0,
+    currentServer: { flag: '🇳🇱', name: 'Нидерланды · Амстердам' },
+  };
 
-  const serverSelector = document.getElementById('serverSelector');
-  const selFlag     = document.getElementById('selFlag');
-  const selName     = document.getElementById('selName');
-
-  const overlay     = document.getElementById('sheetOverlay');
-  const serverSheet = document.getElementById('sheet');
-  const sheetList   = document.getElementById('sheetList');
-
-  const featuresBtn   = document.getElementById('featuresBtn');
-  const featuresSheet = document.getElementById('featuresSheet');
-
-  const premiumBtn  = document.getElementById('premiumBtn');
-  const premiumSheet = document.getElementById('premiumSheet');
-
-  const toast       = document.getElementById('toast');
-  const loader      = document.getElementById('loader');
-
-  // ---------- Loader ----------
-  function hideLoader() {
-    if (!loader) return;
-    loader.classList.add('hide');
-    setTimeout(() => loader.remove(), 600);
-  }
-
-  window.addEventListener('load', () => {
-    setTimeout(hideLoader, 1400);
-  });
-  if (document.readyState === 'complete') {
-    setTimeout(hideLoader, 1400);
-  }
-
-  // ---------- Состояние ----------
-  let isConnected  = false;
-  let isConnecting = false;
-  let sessionSeconds = 0;
   let sessionTimer = null;
   let speedTimer   = null;
-  let activeSheet  = null;
   let toastTimer   = null;
 
-  // ---------- Утилиты ----------
+  // ---------- Хелперы ----------
+  const $  = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  function updateAll(selector, text) {
+    $$(selector).forEach(el => el.textContent = text);
+  }
+
   function randomIP() {
     const o = () => Math.floor(Math.random() * 254) + 1;
     return `${o()}.${o()}.${o()}.${o()}`;
@@ -71,6 +41,8 @@
   }
 
   function showToast(text) {
+    const toast = $('#toast');
+    if (!toast) return;
     toast.textContent = text;
     toast.classList.add('show');
     clearTimeout(toastTimer);
@@ -78,42 +50,43 @@
   }
 
   // ---------- Статус ----------
-  function setStatus(state) {
-    card.classList.remove('is-connected', 'is-connecting');
-    powerBtn.classList.remove('connected', 'connecting');
+  function setStatus(status) {
+    state.isConnected  = status === 'connected';
+    state.isConnecting = status === 'connecting';
 
-    if (state === 'connecting') {
-      card.classList.add('is-connecting');
-      powerBtn.classList.add('connecting');
-      statusText.textContent = 'Подключение…';
-    } else if (state === 'connected') {
-      card.classList.add('is-connected');
-      powerBtn.classList.add('connected');
-      statusText.textContent = 'Защищено';
-    } else {
-      statusText.textContent = 'Не подключено';
-    }
+    $$('.js-connect-card').forEach(card => {
+      card.classList.toggle('is-connected', status === 'connected');
+      card.classList.toggle('is-connecting', status === 'connecting');
+    });
+    $$('.js-power').forEach(btn => {
+      btn.classList.toggle('connected', status === 'connected');
+      btn.classList.toggle('connecting', status === 'connecting');
+    });
+
+    const text =
+      status === 'connected'  ? 'Защищено' :
+      status === 'connecting' ? 'Подключение…' :
+                                'Не подключено';
+    updateAll('.js-status', text);
   }
 
   // ---------- Сессия ----------
   function startSession() {
-    sessionSeconds = 0;
-    timeValue.textContent = '00:00';
+    state.sessionSeconds = 0;
+    updateAll('.js-time', '00:00');
 
     sessionTimer = setInterval(() => {
-      sessionSeconds++;
-      timeValue.textContent = formatTime(sessionSeconds);
+      state.sessionSeconds++;
+      updateAll('.js-time', formatTime(state.sessionSeconds));
     }, 1000);
 
-    downValue.textContent = randomSpeed(40, 180) + ' Мбит/с';
-    upValue.textContent   = randomSpeed(15, 90)  + ' Мбит/с';
-    timeValue.classList.add('accent');
-    downValue.classList.add('accent');
-    upValue.classList.add('accent');
+    updateAll('.js-down', randomSpeed(40, 180) + ' Мбит/с');
+    updateAll('.js-up',   randomSpeed(15, 90)  + ' Мбит/с');
+    $$('.js-time, .js-down, .js-up').forEach(el => el.classList.add('accent'));
 
     speedTimer = setInterval(() => {
-      downValue.textContent = randomSpeed(40, 180) + ' Мбит/с';
-      upValue.textContent   = randomSpeed(15, 90)  + ' Мбит/с';
+      updateAll('.js-down', randomSpeed(40, 180) + ' Мбит/с');
+      updateAll('.js-up',   randomSpeed(15, 90)  + ' Мбит/с');
     }, 1400);
   }
 
@@ -122,105 +95,145 @@
     clearInterval(speedTimer);
     sessionTimer = null;
     speedTimer = null;
-    sessionSeconds = 0;
+    state.sessionSeconds = 0;
 
-    timeValue.textContent = '00:00';
-    downValue.textContent = '0.0 Мбит/с';
-    upValue.textContent   = '0.0 Мбит/с';
-    timeValue.classList.remove('accent');
-    downValue.classList.remove('accent');
-    upValue.classList.remove('accent');
+    updateAll('.js-time', '00:00');
+    updateAll('.js-down', '0.0 Мбит/с');
+    updateAll('.js-up',   '0.0 Мбит/с');
+    $$('.js-time, .js-down, .js-up').forEach(el => el.classList.remove('accent'));
   }
 
+  // ---------- Подключение ----------
   function connect() {
-    if (isConnecting || isConnected) return;
-    isConnecting = true;
+    if (state.isConnecting || state.isConnected) return;
+    state.isConnecting = true;
     setStatus('connecting');
 
     setTimeout(() => {
-      isConnecting = false;
-      isConnected = true;
+      state.isConnecting = false;
+      state.isConnected = true;
       setStatus('connected');
-      ipValue.textContent = randomIP();
-      ipValue.classList.add('accent');
+      updateAll('.js-ip', randomIP());
+      $$('.js-ip').forEach(el => el.classList.add('accent'));
       startSession();
     }, 1100);
   }
 
   function disconnect() {
-    isConnected = false;
-    isConnecting = false;
+    state.isConnected  = false;
+    state.isConnecting = false;
     setStatus('disconnected');
     stopSession();
-    ipValue.classList.remove('accent');
-    ipValue.textContent = '92.38.140.77';
+    updateAll('.js-ip', '92.38.140.77');
+    $$('.js-ip').forEach(el => el.classList.remove('accent'));
   }
 
-  powerBtn.addEventListener('click', () => {
-    if (isConnecting) return;
-    isConnected ? disconnect() : connect();
-  });
-
-  // ---------- Bottom sheet управление ----------
-  function openSheet(sheetEl) {
-    overlay.classList.add('open');
-    sheetEl.classList.add('open');
-    activeSheet = sheetEl;
+  function toggleConnection() {
+    if (state.isConnecting) return;
+    state.isConnected ? disconnect() : connect();
   }
 
-  function closeSheets() {
-    overlay.classList.remove('open');
-    if (activeSheet) activeSheet.classList.remove('open');
-    activeSheet = null;
-  }
+  // ---------- Выбор сервера ----------
+  function selectServer(btn) {
+    const flag = btn.dataset.flag;
+    const name = btn.dataset.name;
+    if (!flag || !name) return;
 
-  overlay.addEventListener('click', closeSheets);
+    state.currentServer = { flag, name };
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeSheets();
-  });
+    updateAll('.js-flag', flag);
+    updateAll('.js-name', name);
 
-  // ---------- Возможности (Щит) ----------
-  featuresBtn.addEventListener('click', () => openSheet(featuresSheet));
+    $$('[data-flag][data-name]').forEach(b => {
+      b.classList.toggle('active', b.dataset.name === name);
+    });
 
-  // ---------- Серверы ----------
-  serverSelector.addEventListener('click', () => openSheet(serverSheet));
+    if (!state.isConnected && !state.isConnecting) {
+      updateAll('.js-ip', randomIP());
+    }
 
-  sheetList.addEventListener('click', (e) => {
-    const btn = e.target.closest('.srv');
-    if (!btn) return;
-
-    sheetList.querySelectorAll('.srv').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-
-    selFlag.textContent = btn.dataset.flag;
-    selName.textContent = btn.dataset.name;
-
-    ipValue.textContent = randomIP();
-    if (isConnected) {
+    if (state.isConnected) {
       stopSession();
-      isConnected = false;
+      state.isConnected = false;
       connect();
     }
 
-    closeSheets();
-  });
+    closeAllSheets();
+  }
 
-  // ---------- Тарифы (Корона) ----------
-  premiumBtn.addEventListener('click', () => openSheet(premiumSheet));
+  // ---------- Шторки (только мобильная версия) ----------
+  let activeSheet = null;
 
-  premiumSheet.addEventListener('click', (e) => {
-    const buyBtn = e.target.closest('.btn-buy');
-    if (!buyBtn) return;
+  function openSheet(id) {
+    const sheet = document.getElementById(id);
+    const overlay = document.getElementById('sheetOverlay');
+    if (!sheet || !overlay) return;
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+    activeSheet = sheet;
+  }
 
-    const plan = buyBtn.dataset.buy;
-    closeSheets();
+  function closeAllSheets() {
+    const overlay = document.getElementById('sheetOverlay');
+    if (overlay) overlay.classList.remove('open');
+    $$('.sheet.open').forEach(s => s.classList.remove('open'));
+    activeSheet = null;
+  }
 
-    if (plan === 'Free') {
-      showToast('Бесплатный тариф активирован ✓');
-    } else {
-      showToast(`Тариф ${plan} оформлен ✓`);
+  // ---------- Инициализация ----------
+  function init() {
+    // Кнопки питания (в обоих макетах)
+    $$('.js-power').forEach(btn => btn.addEventListener('click', toggleConnection));
+
+    // Все кнопки выбора сервера (в обоих макетах)
+    $$('[data-flag][data-name]').forEach(btn => {
+      btn.addEventListener('click', () => selectServer(btn));
+    });
+
+    // Шторки — только мобильный макет
+    const featuresBtn   = document.getElementById('featuresBtn');
+    const premiumBtn    = document.getElementById('premiumBtn');
+    const serverSelector = document.getElementById('serverSelector');
+    const overlay       = document.getElementById('sheetOverlay');
+
+    if (featuresBtn)   featuresBtn.addEventListener('click',   () => openSheet('featuresSheet'));
+    if (premiumBtn)    premiumBtn.addEventListener('click',    () => openSheet('premiumSheet'));
+    if (serverSelector) serverSelector.addEventListener('click', () => openSheet('sheet'));
+    if (overlay)       overlay.addEventListener('click', closeAllSheets);
+
+    // Тарифы (мобильный) → тост
+    const premiumSheet = document.getElementById('premiumSheet');
+    if (premiumSheet) {
+      premiumSheet.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-buy');
+        if (!btn) return;
+        const plan = btn.dataset.buy;
+        closeAllSheets();
+        showToast(plan === 'Free' ? 'Бесплатный тариф активирован ✓' : `Тариф ${plan} оформлен ✓`);
+      });
     }
-  });
 
+    // Esc закрывает шторки
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAllSheets();
+    });
+
+    // Лоадер (только мобильный)
+    const loader = document.getElementById('loader');
+    if (loader) {
+      const hide = () => {
+        loader.classList.add('hide');
+        setTimeout(() => loader.remove(), 600);
+      };
+      window.addEventListener('load', () => setTimeout(hide, 1400));
+      if (document.readyState === 'complete') setTimeout(hide, 1400);
+    }
+  }
+
+  // ---------- Старт ----------
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

@@ -2,20 +2,13 @@
   "name": "TomatoVPN — безопасный интернет",
   "short_name": "TomatoVPN",
   "description": "Быстрый и безопасный VPN для вашего устройства.",
-"start_url": "/Tomato-VPN/",
-"scope": "/Tomato-VPN/",
+  "start_url": "/Tomato-VPN/",
+  "scope": "/Tomato-VPN/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FF6347",
   "theme_color": "#FF6347",
   "lang": "ru",
   "dir": "ltr",
-  "categories": ["utilities", "security", "productivity"],
-  "shortcuts": [
-    {
-      "name": "Подключиться",
-      "short_name": "Старт",
-      "url": "/"
-    }
-  ]
+  "categories": ["utilities", "security", "productivity"]
 }
