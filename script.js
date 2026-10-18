@@ -1,5 +1,5 @@
 /* ============================================================
-   TomatoVPN — демо (VPN не работает, только интерфейс)
+   TomatoVPN — визуальный макет (без серверов и запросов)
    ============================================================ */
 
 (function () {
@@ -22,6 +22,9 @@
   const serverSheet = document.getElementById('sheet');
   const sheetList   = document.getElementById('sheetList');
 
+  const featuresBtn   = document.getElementById('featuresBtn');
+  const featuresSheet = document.getElementById('featuresSheet');
+
   const premiumBtn  = document.getElementById('premiumBtn');
   const premiumSheet = document.getElementById('premiumSheet');
 
@@ -35,11 +38,9 @@
     setTimeout(() => loader.remove(), 600);
   }
 
-  // Дадим прогрузиться шрифтам/картинкам, потом покажем ~1.4 сек
   window.addEventListener('load', () => {
     setTimeout(hideLoader, 1400);
   });
-  // fallback, если load уже сработал
   if (document.readyState === 'complete') {
     setTimeout(hideLoader, 1400);
   }
@@ -179,6 +180,9 @@
     if (e.key === 'Escape') closeSheets();
   });
 
+  // ---------- Возможности (Щит) ----------
+  featuresBtn.addEventListener('click', () => openSheet(featuresSheet));
+
   // ---------- Серверы ----------
   serverSelector.addEventListener('click', () => openSheet(serverSheet));
 
@@ -202,7 +206,7 @@
     closeSheets();
   });
 
-  // ---------- Тарифы ----------
+  // ---------- Тарифы (Корона) ----------
   premiumBtn.addEventListener('click', () => openSheet(premiumSheet));
 
   premiumSheet.addEventListener('click', (e) => {
