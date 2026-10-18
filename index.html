@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TomatoVPN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= LOADER ================= -->
+  <div class="loader" id="loader">
+    <div class="loader-content">
+      <div class="loader-logo">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="loader-title">Tomato<span>VPN</span></div>
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+
+  <!-- ================= APP ================= -->
+  <div class="app">
+    <header class="app-header">
+      <div></div>
+      <div class="logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        Tomato<span>VPN</span>
+      </div>
+      <button class="premium-btn" id="premiumBtn" aria-label="Купить тариф">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2">
+          <path d="M4 18h16M5 18l-2-9 5 3 4-7 4 7 5-3-2 9"/>
+        </svg>
+      </button>
+    </header>
+
+    <main class="app-main">
+      <div class="connect-card" id="connectCard">
+        <div class="connect-head">
+          <span class="dot"></span>
+          <span id="statusText">Не подключено</span>
+        </div>
+
+        <button class="power" id="powerBtn" aria-label="Подключиться к VPN">
+          <span class="ring"></span>
+          <span class="ring"></span>
+          <svg viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M12 3v9"/>
+            <path d="M6.4 6.4a8 8 0 1 0 11.2 0"/>
+          </svg>
+        </button>
+
+        <div class="data-grid">
+          <div class="data-cell">
+            <span class="label">IP-адрес</span>
+            <span class="value" id="ipValue">92.38.140.77</span>
+          </div>
+          <div class="data-cell">
+            <span class="label">Время</span>
+            <span class="value" id="timeValue">00:00</span>
+          </div>
+          <div class="data-cell">
+            <span class="label">↓ Загрузка</span>
+            <span class="value" id="downValue">0.0 Мбит/с</span>
+          </div>
+          <div class="data-cell">
+            <span class="label">↑ Отдача</span>
+            <span class="value" id="upValue">0.0 Мбит/с</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="server-selector" id="serverSelector">
+        <span class="flag" id="selFlag">🇳🇱</span>
+        <span class="sel-info">
+          <span class="sel-label">Сервер</span>
+          <span class="sel-name" id="selName">Нидерланды · Амстердам</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </button>
+    </main>
+  </div>
+
+  <!-- ================= OVERLAY ================= -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+
+  <!-- ================= SERVER SHEET ================= -->
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Выберите сервер</div>
+    <div class="sheet-list" id="sheetList">
+      <button class="srv active" data-flag="🇳🇱" data-name="Нидерланды · Амстердам">
+        <span class="flag">🇳🇱</span>
+        <span class="info"><span class="name">Нидерланды</span><span class="city">Амстердам</span></span>
+        <span class="ping">18 ms</span>
+      </button>
+      <button class="srv" data-flag="🇩🇪" data-name="Германия · Франкфурт">
+        <span class="flag">🇩🇪</span>
+        <span class="info"><span class="name">Германия</span><span class="city">Франкфурт</span></span>
+        <span class="ping">24 ms</span>
+      </button>
+      <button class="srv" data-flag="🇺🇸" data-name="США · Нью-Йорк">
+        <span class="flag">🇺🇸</span>
+        <span class="info"><span class="name">США</span><span class="city">Нью-Йорк</span></span>
+        <span class="ping">89 ms</span>
+      </button>
+      <button class="srv" data-flag="🇯🇵" data-name="Япония · Токио">
+        <span class="flag">🇯🇵</span>
+        <span class="info"><span class="name">Япония</span><span class="city">Токио</span></span>
+        <span class="ping">132 ms</span>
+      </button>
+      <button class="srv" data-flag="🇸🇬" data-name="Сингапур · Сингапур">
+        <span class="flag">🇸🇬</span>
+        <span class="info"><span class="name">Сингапур</span><span class="city">Сингапур</span></span>
+        <span class="ping">158 ms</span>
+      </button>
+      <button class="srv" data-flag="🇬🇧" data-name="Великобритания · Лондон">
+        <span class="flag">🇬🇧</span>
+        <span class="info"><span class="name">Великобритания</span><span class="city">Лондон</span></span>
+        <span class="ping">31 ms</span>
+      </button>
+      <button class="srv" data-flag="🇫🇷" data-name="Франция · Париж">
+        <span class="flag">🇫🇷</span>
+        <span class="info"><span class="name">Франция</span><span class="city">Париж</span></span>
+        <span class="ping">27 ms</span>
+      </button>
+      <button class="srv" data-flag="🇨🇦" data-name="Канада · Торонто">
+        <span class="flag">🇨🇦</span>
+        <span class="info"><span class="name">Канада</span><span class="city">Торонто</span></span>
+        <span class="ping">96 ms</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= PRICING SHEET ================= -->
+  <div class="sheet pricing-sheet" id="premiumSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Тарифы</div>
+    <div class="plans-sheet">
+
+      <div class="plan-card">
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Free</div>
+            <div class="plan-desc">Для знакомства с сервисом</div>
+          </div>
+          <div class="plan-price">0<span> ₽/мес</span></div>
+        </div>
+        <ul class="plan-features">
+          <li>1 устройство</li>
+          <li>1 локация</li>
+          <li>50 Мбит/с</li>
+          <li>5 ГБ / мес</li>
+        </ul>
+        <button class="btn-buy" data-buy="Free">Начать</button>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-desc">Для повседневного использования</div>
+          </div>
+          <div class="plan-price">299<span> ₽/мес</span></div>
+        </div>
+        <ul class="plan-features">
+          <li>3 устройства</li>
+          <li>4 локации</li>
+          <li>100 Мбит/с</li>
+          <li>20 ГБ / мес</li>
+        </ul>
+        <button class="btn-buy primary" data-buy="Pro">Купить Pro</button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-top">
+          <div>
+            <div class="plan-name">Team</div>
+            <div class="plan-desc">Для команд и малого бизнеса</div>
+          </div>
+          <div class="plan-price">599<span> ₽/мес</span></div>
+        </div>
+        <ul class="plan-features">
+          <li>До 5 устройств</li>
+          <li>8 локаций</li>
+          <li>200 Мбит/с</li>
+          <li>Безлимит</li>
+        </ul>
+        <button class="btn-buy" data-buy="Team">Купить Team</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
