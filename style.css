@@ -432,3 +432,43 @@ body{
   
   .connect-card .location-pill{ display: none; }
 }
+
+
+/* ============================================================
+   ФОНОВАЯ СЕТКА — ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Сетка-фон */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    /* тонкая сетка 32×32 px */
+    background-image:
+      linear-gradient(rgba(126, 126, 126, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(102, 102, 102, 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: 0 0;
+
+    /* плавное затухание по краям, чтобы не «резало» глаза */
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 40%,
+      black 40%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 40%,
+      black 40%,
+      transparent 100%
+    );
+  }
+
+  /* Мобильное приложение — над сеткой */
+  .app {
+    position: relative;
+    z-index: 1;
+  }
+}
